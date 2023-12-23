@@ -3,24 +3,24 @@ using UnityEngine;
 
 using Photon.Pun;
 using NSMB.Utils;
+using System.IO;
 
 public class PlayerAnimationController : MonoBehaviourPun {
 
     [SerializeField] private Avatar smallAvatar, largeAvatar;
     [SerializeField] private ParticleSystem dust, sparkles, drillParticle, giantParticle, fireParticle;
-    [SerializeField] private GameObject models, smallModel, largeModel, largeShellExclude, blueShell, propellerHelmet, propeller;
+    [SerializeField] private GameObject models, smallModel, largeModel, largeShellExclude, blueShell, propellerHelmet, propeller, Oldlarge, Oldsmall;
     [SerializeField] private Material glowMaterial;
     [SerializeField] private Color primaryColor = Color.clear, secondaryColor = Color.clear;
     [SerializeField] [ColorUsage(true, false)] private Color? _glowColor = null;
     [SerializeField] private float blinkDuration = 0.1f, pipeDuration = 2f, deathUpTime = 0.6f, deathForce = 7f;
-
+    private bool LoadedSkin;
     private PlayerController controller;
     private Animator animator;
     private Rigidbody2D body;
     private BoxCollider2D mainHitbox;
-    private List<Renderer> renderers = new();
+    [SerializeField] private List<Renderer> renderers = new();
     private MaterialPropertyBlock materialBlock;
-
     public Color GlowColor {
         get {
             if (_glowColor == null)
@@ -44,7 +44,6 @@ public class PlayerAnimationController : MonoBehaviourPun {
         body = GetComponent<Rigidbody2D>();
         mainHitbox = GetComponent<BoxCollider2D>();
         drillParticleAudio = drillParticle.GetComponent<AudioSource>();
-
         DisableAllModels();
 
         if (photonView) {
@@ -61,10 +60,50 @@ public class PlayerAnimationController : MonoBehaviourPun {
 
     public void Update() {
         HandleAnimations();
+        if (controller.character.name == "Luigi")
+        {
+            if (Settings.Instance.LuigiSkin == "Luigi")
+            {
+                if (renderers.Count == 0)
+                {
+                    renderers.AddRange(GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                }
+            }
+            else
+            {
+                if (renderers.Count == 0)
+                {
+                    renderers.AddRange(largeModel.GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(smallModel.GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(smallModel.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                    renderers.AddRange(largeModel.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                }
 
-        if (renderers.Count == 0) {
-            renderers.AddRange(GetComponentsInChildren<MeshRenderer>(true));
-            renderers.AddRange(GetComponentsInChildren<SkinnedMeshRenderer>(true));
+            }
+        }
+
+        if (controller.character.name == "Mario")
+        {
+            if (Settings.Instance.MarioSkin == "Mario")
+            {
+                if (renderers.Count == 0)
+                {
+                    renderers.AddRange(GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                }
+            }
+            else
+            {
+                if (renderers.Count == 0)
+                {
+                    renderers.AddRange(largeModel.GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(smallModel.GetComponentsInChildren<MeshRenderer>(true));
+                    renderers.AddRange(smallModel.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                    renderers.AddRange(largeModel.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+                }
+
+            }
         }
     }
 
@@ -386,6 +425,115 @@ public class PlayerAnimationController : MonoBehaviourPun {
         largeModel.SetActive(false);
         blueShell.SetActive(false);
         propellerHelmet.SetActive(false);
+
+        if (LoadedSkin == false)
+        {
+            if (controller.character.name == "Luigi")
+            {
+                if (Settings.Instance.LuigiSkin != "Luigi")
+                    {
+                    if (Settings.Instance.LuigiSkinBundle == null)
+                    {
+                        Settings.Instance.LuigiSkinBundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, "LuigiSkin_" + Settings.Instance.MarioSkin));
+                    }
+                    Destroy(Oldsmall);
+                        smallModel = Instantiate(Settings.Instance.LuigiSkinBundle.LoadAsset<GameObject>("Assets/Skins/Luigi/" + Settings.Instance.LuigiSkin + "/luigi_small/SmallLuigi.prefab"), models.transform);
+                        Destroy(Oldlarge);
+                        largeModel = Instantiate(Settings.Instance.LuigiSkinBundle.LoadAsset<GameObject>("Assets/Skins/Luigi/" + Settings.Instance.LuigiSkin + "/luigi_big/LargeLuigi.prefab"), models.transform);
+                        if(largeModel != null)
+                        {
+                            blueShell = largeModel.GetComponent<LargeModelSkinObjects>().blueShell;
+                            propellerHelmet = largeModel.GetComponent<LargeModelSkinObjects>().propellerHelmet;
+                            propeller = largeModel.GetComponent<LargeModelSkinObjects>().propeller;
+                            largeShellExclude = largeModel.GetComponent<LargeModelSkinObjects>().largeShellExclude;
+                        }
+                        LoadedSkin = true;
+                    
+                }
+                else
+                {
+                    LoadedSkin = true;
+                }
+            }
+
+            if (controller.character.name == "Mario")
+            {
+                if (Settings.Instance.MarioSkin != "Mario")
+                {
+                    if (Settings.Instance.MarioSkinBundle == null)
+                    {
+                        Settings.Instance.MarioSkinBundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, "MarioSkin_" + Settings.Instance.MarioSkin));
+                    }
+                    Destroy(Oldsmall);
+                        smallModel = Instantiate(Settings.Instance.MarioSkinBundle.LoadAsset<GameObject>("Assets/Skins/Mario/" + Settings.Instance.MarioSkin + "/mario_small/SmallMario.prefab"), models.transform);
+                        Destroy(Oldlarge);
+                        largeModel = Instantiate(Settings.Instance.MarioSkinBundle.LoadAsset<GameObject>("Assets/Skins/Mario/" + Settings.Instance.MarioSkin + "/mario_big/LargeMario.prefab"), models.transform);
+                        if (largeModel != null)
+                        {
+                            blueShell = largeModel.GetComponent<LargeModelSkinObjects>().blueShell;
+                            propellerHelmet = largeModel.GetComponent<LargeModelSkinObjects>().propellerHelmet;
+                            propeller = largeModel.GetComponent<LargeModelSkinObjects>().propeller;
+                            largeShellExclude = largeModel.GetComponent<LargeModelSkinObjects>().largeShellExclude;
+                        }
+                        LoadedSkin = true;
+                    }
+                else
+                {
+                    LoadedSkin = true;
+                }
+            }
+
+            }
+
+        
+
+
         animator.avatar = smallAvatar;
     }
+
+    //public void LoadSkin()
+    //{
+    //    bool Replaced = false;
+    //    if (Settings.Instance.LuigiSkin != "Luigi")
+    //    {
+    //        models = Addressables.LoadAssetAsync<GameObject>("Assets/Skins/Luigi/" + Settings.Instance.LuigiSkin + "/Models").Result;
+    //        Replaced = true;
+    //    }
+
+    //    if (Settings.Instance.MarioSkin != "Mario")
+    //    {
+    //        models = Addressables.LoadAssetAsync<GameObject>("Assets/Skins/Mario/" + Settings.Instance.MarioSkin + "/Models").Result;
+    //        Replaced = true;
+    //    }
+    //    if(Replaced == true)
+    //        {
+    //        var SpawnedModel = Instantiate(models, transform.position, Quaternion.identity);
+    //        SpawnedModel.name = models.name + "(Modded)";
+    //        SpawnedModel.transform.parent = transform;
+    //        models = SpawnedModel;
+
+    //        if (controller.character.name == "Luigi")
+    //        {
+    //            smallModel = SpawnedModel.transform.Find("SmallLuigi").gameObject;
+    //            largeModel = SpawnedModel.transform.Find("LargeLuigi").gameObject;
+    //            largeShellExclude = SpawnedModel.transform.Find("LargeLuigi/mario_model_mg/mario_model_mg.001").gameObject;
+    //            blueShell = SpawnedModel.transform.Find("LargeLuigi/mario_model_mg/mario_all_root/skl_root/spin/blue_shell").gameObject;
+    //            propellerHelmet = SpawnedModel.transform.Find("LargeLuigi/mario_model_mg/mario_all_root/skl_root/spin/head/PropellerHat").gameObject;
+    //            propeller = SpawnedModel.transform.Find("LargeLuigi/mario_model_mg/mario_all_root/skl_root/spin/head/PropellerHat/Propeller").gameObject;
+
+    //        }
+    //        if (controller.character.name == "Mario")
+    //        {
+    //            smallModel = SpawnedModel.transform.Find("SmallMario").gameObject;
+    //            largeModel = SpawnedModel.transform.Find("LargeMario").gameObject;
+    //            largeShellExclude = SpawnedModel.transform.Find("LargeMario/mario_model_mg/mario_model_mg.001").gameObject;
+    //            blueShell = SpawnedModel.transform.Find("LargeMario/mario_model_mg/mario_all_root/skl_root/spin/blue_shell").gameObject;
+    //            propellerHelmet = SpawnedModel.transform.Find("LargeMario/mario_model_mg/mario_all_root/skl_root/spin/head/PropellerHat").gameObject;
+    //            propeller = SpawnedModel.transform.Find("LargeMario/mario_model_mg/mario_all_root/skl_root/spin/head/PropellerHat/Propeller").gameObject;
+    //        }
+
+    //    }
+
+    //}
+
 }

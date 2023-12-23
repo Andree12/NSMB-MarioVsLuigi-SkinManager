@@ -30,7 +30,7 @@ public class Settings : Singleton<Settings> {
         }
     }
 
-    public string nickname;
+    public string nickname, MarioSkin, LuigiSkin;
     public int character, skin;
     public bool ndsResolution = false, fireballFromSprint = true, vsync = false, fourByThreeRatio = false;
     public bool scoreboardAlways = false, filter = true;
@@ -60,6 +60,14 @@ public class Settings : Singleton<Settings> {
         filter = PlayerPrefs.GetInt("ChatFilter", 1) == 1;
         character = PlayerPrefs.GetInt("Character", 0);
         skin = PlayerPrefs.GetInt("Skin", 0);
+
+        MarioSkin = PlayerPrefs.GetString("MarioSkin");
+        if (MarioSkin == null || MarioSkin == "")
+            MarioSkin = "Mario";
+
+        LuigiSkin = PlayerPrefs.GetString("LuigiSkin");
+        if (LuigiSkin == null || LuigiSkin == "")
+            LuigiSkin = "Luigi";
     }
     public void SaveSettingsToPreferences() {
         PlayerPrefs.SetString("Nickname", Regex.Replace(PhotonNetwork.NickName, "\\(\\d*\\)", ""));
@@ -74,6 +82,8 @@ public class Settings : Singleton<Settings> {
         PlayerPrefs.SetInt("ChatFilter", filter ? 1 : 0);
         PlayerPrefs.SetInt("Character", character);
         PlayerPrefs.SetInt("Skin", skin);
+        PlayerPrefs.SetString("MarioSkin", MarioSkin);
+        PlayerPrefs.SetString("LuigiSkin", LuigiSkin);
         PlayerPrefs.Save();
     }
 
@@ -82,4 +92,7 @@ public class Settings : Singleton<Settings> {
         mixer.SetFloat("SoundVolume", Mathf.Log10(VolumeSFX) * 20);
         mixer.SetFloat("MasterVolume", Mathf.Log10(VolumeMaster) * 20);
     }
+
+    public AssetBundle MarioSkinBundle;
+    public AssetBundle LuigiSkinBundle;
 }

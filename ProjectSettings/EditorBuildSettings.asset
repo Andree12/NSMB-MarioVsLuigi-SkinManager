@@ -42,5 +42,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Levels/CustomDesert.unity
     guid: 0a445e83695e8424e9e56da3e5b773e4
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 2df521cca5814864ab23846160d64736,
+      type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 49335f30d253220488d2d332ade6e901,
       type: 2}

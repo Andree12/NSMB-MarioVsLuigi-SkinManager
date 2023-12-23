@@ -265,7 +265,7 @@ public class PlayerController : MonoBehaviourPun, IFreezableEntity, ICustomSeria
         hitboxes = GetComponents<BoxCollider2D>();
         trackIcon = UIUpdater.Instance.CreatePlayerIcon(this);
         transform.position = body.position = GameManager.Instance.spawnpoint;
-
+        
         LoadFromGameState();
         spawned = true;
         cameraController.Recenter();

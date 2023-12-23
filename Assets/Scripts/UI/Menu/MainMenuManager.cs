@@ -24,7 +24,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
     public GameObject lobbiesContent, lobbyPrefab;
     bool quit, validName;
     public GameObject connecting;
-    public GameObject title, bg, mainMenu, optionsMenu, lobbyMenu, createLobbyPrompt, inLobbyMenu, creditsMenu, controlsMenu, privatePrompt, updateBox;
+    public GameObject title, bg, mainMenu, optionsMenu, lobbyMenu, createLobbyPrompt, inLobbyMenu, creditsMenu, controlsMenu, privatePrompt, updateBox, skinsMenu;
     public GameObject[] levelCameraPositions;
     public GameObject sliderText, lobbyText, currentMaxPlayers, settingsPanel;
     public TMP_Dropdown levelDropdown, characterDropdown;
@@ -34,7 +34,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
     public GameObject playersContent, playersPrefab, chatContent, chatPrefab;
     public TMP_InputField nicknameField, starsText, coinsText, livesField, timeField, lobbyJoinField, chatTextField;
     public Slider musicSlider, sfxSlider, masterSlider, lobbyPlayersSlider, changePlayersSlider;
-    public GameObject mainMenuSelected, optionsSelected, lobbySelected, currentLobbySelected, createLobbySelected, creditsSelected, controlsSelected, privateSelected, reconnectSelected, updateBoxSelected;
+    public GameObject mainMenuSelected, optionsSelected, lobbySelected, currentLobbySelected, createLobbySelected, creditsSelected, controlsSelected, privateSelected, reconnectSelected, updateBoxSelected, SkinsMenuSelected;
     public GameObject errorBox, errorButton, rebindPrompt, reconnectBox;
     public TMP_Text errorText, rebindCountdown, rebindText, reconnectText, updateText;
     public TMP_Dropdown region;
@@ -621,7 +621,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(mainMenuSelected);
     }
     public void OpenMainMenu() {
@@ -636,7 +636,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
         updateBox.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(mainMenuSelected);
 
     }
@@ -651,7 +651,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         foreach (RoomIcon room in currentRooms.Values)
             room.UpdateUI(room.room);
 
@@ -668,7 +668,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         privateToggle.isOn = false;
 
         EventSystem.current.SetSelectedGameObject(createLobbySelected);
@@ -684,7 +684,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(optionsSelected);
     }
     public void OpenControls() {
@@ -698,7 +698,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(controlsSelected);
     }
     public void OpenCredits() {
@@ -712,7 +712,7 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(false);
         creditsMenu.SetActive(true);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(creditsSelected);
     }
     public void OpenInLobbyMenu() {
@@ -726,9 +726,33 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
         inLobbyMenu.SetActive(true);
         creditsMenu.SetActive(false);
         privatePrompt.SetActive(false);
-
+        skinsMenu.SetActive(false);
         EventSystem.current.SetSelectedGameObject(currentLobbySelected);
     }
+
+    public void OpenSkinsMenu()
+    {
+        if (skinsMenu.GetComponent<SkinManager>().NoSkins == false)
+        {
+            title.SetActive(false);
+            bg.SetActive(true);
+            mainMenu.SetActive(false);
+            optionsMenu.SetActive(false);
+            controlsMenu.SetActive(false);
+            lobbyMenu.SetActive(false);
+            createLobbyPrompt.SetActive(false);
+            inLobbyMenu.SetActive(false);
+            creditsMenu.SetActive(false);
+            privatePrompt.SetActive(false);
+            skinsMenu.SetActive(true);
+            EventSystem.current.SetSelectedGameObject(SkinsMenuSelected);
+        }
+        else
+        {
+            OpenErrorBox(DisconnectCause.None);
+        }
+    }
+
     public void OpenPrivatePrompt() {
         privatePrompt.SetActive(true);
         lobbyJoinField.text = "";
@@ -740,7 +764,18 @@ public class MainMenuManager : MonoBehaviour, ILobbyCallbacks, IInRoomCallbacks,
             sfx.PlayOneShot(Enums.Sounds.UI_Error.GetClip());
 
         errorBox.SetActive(true);
-        errorText.text = NetworkUtils.disconnectMessages.GetValueOrDefault(cause, cause.ToString());
+        if(cause == DisconnectCause.None)
+        {
+            if(skinsMenu.GetComponent<SkinManager>().NoSkins == true)
+            {
+                errorText.text = "Files for the skins are not found.";
+            }
+        }
+        else
+        {
+            errorText.text = NetworkUtils.disconnectMessages.GetValueOrDefault(cause, cause.ToString());
+            EventSystem.current.SetSelectedGameObject(errorButton);
+        }
         EventSystem.current.SetSelectedGameObject(errorButton);
     }
 
